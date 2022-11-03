@@ -1,0 +1,19 @@
+<!-- templates/index.html -->
+
+{% extends "base_user.html" %}
+
+{% block content %}
+<h1>Your History </h1>
+
+    {% if historys %}
+        {% for history in historys %}
+        <article>
+            <h2> id : {{ history.id }} -Gate ID : {{ history.gate_id }} - date : {{ history.date }}
+            </h2>
+        </article>
+        <hr>
+        {% endfor %}
+    {% else %}
+        <p>No history found.</p>
+    {% endif %}
+{% endblock %}

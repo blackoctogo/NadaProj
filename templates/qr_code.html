@@ -1,0 +1,10 @@
+<!-- templates/add.html -->
+
+{% extends "base_user.html" %}
+
+{% block content %}
+     <h2>QR Code Generator </h2>
+
+        <div id="myDiv"> <script> generateQRCode('{{ dat }}')</script> </div>
+        <img id="qrcode"/>
+{% endblock %}

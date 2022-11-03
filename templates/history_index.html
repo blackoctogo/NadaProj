@@ -1,0 +1,19 @@
+<!-- templates/index.html -->
+
+{% extends "base.html" %}
+
+{% block content %}
+<h1>List of trials </h1>
+
+    {% if historys %}
+        {% for history in historys %}
+        <article>
+            <h2> id : {{ history.id }} - result : {{ history.result }} - date : {{ history.date }}
+            </h2>
+        </article>
+        <hr>
+        {% endfor %}
+    {% else %}
+        <p>No history found.</p>
+    {% endif %}
+{% endblock %}
