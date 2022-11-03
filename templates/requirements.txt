@@ -1,0 +1,7 @@
+Flask
+datetime
+requests
+flask_restful
+flask_cors
+flask_sqlalchemy
+gunicorn
