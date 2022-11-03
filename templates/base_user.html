@@ -9,23 +9,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>MEEC</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.2/css/bulma.min.css" />
-    <script>
-            function generateQRCode(value) {
-                let formData = new FormData();
-                formData.append('data', value);
-                fetch('http://127.0.0.1:2/user/generate_qrcode', {
-                    method: 'POST',
-                    body: formData
-                }).then((res) => {
-                    res.body.getReader().read().then((img) => {
-                        let imageByteArray = img.value;
-                        let stringValue = String.fromCharCode(...imageByteArray);
-                        let encodedValue = btoa(stringValue);
-                        document.getElementById('qrcode').src = `data:image/png;base64,${encodedValue}`;
-                    })
-                })
-            }
-        </script>
 </head>
 
 <body>
@@ -37,15 +20,7 @@
 
                     <div id="navbarMenuHeroA" class="navbar-menu">
                         <div class="navbar-end">
-                            <a href="{{ url_for('history') }}" class="navbar-item">
-                                History
-                            </a>
-                            <a href="{{ url_for('generate_qrcode') }}" class="navbar-item">
-                                Open a gate
-                            </a>
-                            <a href="https://id.tecnico.ulisboa.pt/cas/logout" class="navbar-item">
-                                Disconnect
-                            </a>
+                            
                         </div>
                     </div>
                 </div>
