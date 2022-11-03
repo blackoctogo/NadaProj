@@ -1,1 +1,1 @@
-web : gunicorn meecgates:app
+web gunicorn meecgates:app
