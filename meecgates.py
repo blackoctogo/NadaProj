@@ -12,6 +12,9 @@ def home():
 def contribute():
     return render_template('contribute.html')
 
+@app.route("/mentions-legales")
+def ml():
+    return render_template('ml.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
