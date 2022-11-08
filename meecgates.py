@@ -43,18 +43,15 @@ except Exception as e:
 def home():
     return render_template('home.html')
 
-@app.route("/contribuer")
-def contribute():
-    return render_template('contribute.html')
 
 @app.route("/mentions-legales")
 def ml():
     return render_template('ml.html')
 
 
-app.config["ALLOWED_IMAGE_EXTENSONS"] = ["PNG","JPG","JPEG", "GIF"]
+app.config["ALLOWED_IMAGE_EXTENSONS"] = ["M4V","MP4","MOV"]
 
-def allowed_image(filename) :
+def allowed_video(filename) :
     if not "." in filename :
         return False
     ext= filename.rsplit(".", 1)[1]
@@ -77,7 +74,7 @@ def upload_image():
                print("Image must have a filename")
                return redirect(request.url)
 
-           if not allowed_image(image.filename) :
+           if not allowed_video(image.filename) :
                print("That image ext is not allowed")
                redirect(request.url)
 
@@ -101,6 +98,50 @@ def upload_image():
 
 
     return render_template('upload-image.html')
+
+
+
+@app.route("/contribuer")
+def contribute():
+
+    if request.method=="POST" :
+
+        if request.files:
+
+           video = request.files["video"]
+
+           if video.filename== "" :
+               print("Video must have a filename")
+               return redirect(request.url)
+
+           if not allowed_image(video.filename) :
+               print("That video ext is not allowed")
+               redirect(request.url)
+
+           else :
+                filename= secure_filename(video.filename)
+                #image.save(os.path.join(app.config["IMAGE_UPLOAD"], filename))
+                try:
+                    uploadToBlobStorage(video,filename)
+                    print("Video Saved")
+                except Exception as e:
+                    print(e)
+                    print("Ignoring duplicate filenames")  # ignore duplicate filename
+
+
+
+
+
+           #image.save(os.path.join(app.config["IMAGE_UPLOAD" ], image.filename) )
+
+           return redirect(request.url)
+
+
+
+    return render_template('contribute.html')
+
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
