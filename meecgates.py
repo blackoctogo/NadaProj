@@ -101,8 +101,8 @@ def upload_image():
 
 
 
-@app.route("/contribuer")
-def contribute():
+@app.route("/contribuer", methods= ["GET","POST"])
+def contribuer():
 
     if request.method=="POST" :
 
@@ -114,7 +114,7 @@ def contribute():
                print("Video must have a filename")
                return redirect(request.url)
 
-           if not allowed_image(video.filename) :
+           if not allowed_video(video.filename) :
                print("That video ext is not allowed")
                redirect(request.url)
 
