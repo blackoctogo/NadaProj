@@ -2,10 +2,22 @@
 from flask import *
 from werkzeug.utils import secure_filename
 from azure.storage.blob import BlobServiceClient,_container_client
+from flask_sqlalchemy import SQLAlchemy
 
 import os
 
-
+'''
+import sqlite3
+import pandas as pd
+filename="worddb"
+con=sqlite3.connect(filename+".db")
+wb=pd.ExcelFile(filename+'.xlsx')
+for sheet in wb.sheet_names:
+        df=pd.read_excel(filename+'.xlsx',sheet_name=sheet)
+        df.to_sql(sheet,con, index=False,if_exists="replace")
+con.commit()
+con.close()
+'''
 
 storage_account_key = "x3uGxcHOPRBGr6ubganIRxZwH/OtDyVFE6SoekthOBRd4yq57I+o07lWMrSkXxbck6rM+5vIXB+++AStjwIrAQ=="
 storage_account_name = "tutoriel"
@@ -20,6 +32,19 @@ def uploadToBlobStorage(file,filename):
 #uploadToBlobStorage(r"C:\Users\LOMRI Yassine\Documents\GitHub\NadaProj\img\uploads\Logo nada.png",'Logo.png')
 
 app = Flask(__name__)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///worddb.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db = SQLAlchemy(app)
+
+class Word(db.Model):
+    string = db.Column(db.String(50), primary_key=True)
+    added = db.Column(db.Boolean, default= False)
+
+    def __repr__(self):
+        return f"Word(string = {self.string}, added = {self.added})"
+
 
 '''
 connect_str = "DefaultEndpointsProtocol=https;AccountName=tutoriel;AccountKey=x3uGxcHOPRBGr6ubganIRxZwH/OtDyVFE6SoekthOBRd4yq57I+o07lWMrSkXxbck6rM+5vIXB+++AStjwIrAQ==;EndpointSuffix=core.windows.net"

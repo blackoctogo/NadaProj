@@ -4,23 +4,26 @@
 {% extends "base.html" %}
 
 {% block content %}
+<h1 style="font-size: 40px; position: absolute; top: -200px;left: 320px;font-weight: bold">Upload une vidéo</h1>
+<img src="/static/video_logo.png" width="100"  height="100" style="position: absolute; top: -120px; left: 450px">
 <div class=" container">
     <div class=" row">
         <div class="col">
-            <h1>Upload une vidéo</h1>
-            <hr>
+
+
             <form action="/contribuer" method="post" enctype="multipart/form-data">
 
                 <div class="form-group">
-                    <label>Déposez votre vidéo</label>
+
                     <div class="custom-file">
-                        <input oninput="filesize(this);" type="file" class="custom-file-input" name="video" id="video">
-                        <label class="custom-file-label" for="video"> Selectionnez une Video</label>
+                        <label> <br> <br> <br></label>
+                        <input oninput="filesize(this);" type="file" class="custom-file-input" name="video" id="video" style="border-radius: revert">
+                        <label class="custom-file-label" for="video"> Selectionnez une Video<br><br></label>
                     </div>
-                    <label id="ipt">{{text}}</label>
+                    <label style="font-weight: bold" id="ipt">{{text}}<br><br></label>
                 </div>
 
-                <button type="submit" class=" btn btn-primary" style="height:50px;width:120px"> Upload la Video</button>
+                <button type="submit" class=" btn btn-primary" style="font-size:20px;height:50px;width:120px"> Upload</button>
 
 
                 <script>
