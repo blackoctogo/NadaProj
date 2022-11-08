@@ -4,8 +4,8 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1 style="font-size: 40px; position: absolute; top: -200px;left: 320px;font-weight: bold">Upload une vidéo</h1>
-<img src="/static/video_logo.png" width="100"  height="100" style="position: absolute; top: -120px; left: 450px">
+<h1 style="font-size: 40px; position: absolute; top: -200px;left: 490px;font-weight: bold">Upload une vidéo</h1>
+<img src="/static/video_logo.png" width="100"  height="100" style="position: absolute; top: -120px; left: 620px">
 <div class=" container">
     <div class=" row">
         <div class="col">
@@ -18,7 +18,6 @@
                     <div class="custom-file">
                         <label> <br> <br> <br></label>
                         <input oninput="filesize(this);" type="file" class="custom-file-input" name="video" id="video" style="border-radius: revert">
-                        <label class="custom-file-label" for="video"> Selectionnez une Video<br><br></label>
                     </div>
                     <label style="font-weight: bold" id="ipt">{{text}}<br><br></label>
                 </div>
