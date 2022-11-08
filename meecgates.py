@@ -72,11 +72,11 @@ def upload_image():
 
            if image.filename== "" :
                print("Image must have a filename")
-               return redirect(request.url)
+               return redirect(request.url, text = "Votre vidéo doit comporter un nom.")
 
            if not allowed_video(image.filename) :
                print("That image ext is not allowed")
-               redirect(request.url)
+               redirect(request.url, text ="Ce type de fichier n'est pas accepté.")
 
            else :
                 filename= secure_filename(image.filename)
@@ -94,7 +94,7 @@ def upload_image():
 
            #image.save(os.path.join(app.config["IMAGE_UPLOAD" ], image.filename) )
 
-           return redirect(request.url)
+           return redirect(request.url, texte = "Votre vidéo a bien été enregistrée, merci pour votre contribution !")
 
 
     return render_template('upload-image.html')
@@ -112,11 +112,11 @@ def contribuer():
 
            if video.filename== "" :
                print("Video must have a filename")
-               return redirect(request.url)
+               return render_template('contribute.html', text = "Votre vidéo doit comporter un nom.")
 
            if not allowed_video(video.filename) :
                print("That video ext is not allowed")
-               redirect(request.url)
+               return render_template('contribute.html', text ="Ce type de fichier n'est pas accepté.")
 
            else :
                 filename= secure_filename(video.filename)
@@ -124,9 +124,13 @@ def contribuer():
                 try:
                     uploadToBlobStorage(video,filename)
                     print("Video Saved")
+                    return render_template('contribute.html',
+                                           text="Votre vidéo a bien été enregistrée, merci pour votre contribution !")
                 except Exception as e:
                     print(e)
                     print("Ignoring duplicate filenames")  # ignore duplicate filename
+                return render_template('contribute.html',
+                                       text="Ce nom de vidéo est déjà existant, merci de le modifier.")
 
 
 
@@ -134,7 +138,7 @@ def contribuer():
 
            #image.save(os.path.join(app.config["IMAGE_UPLOAD" ], image.filename) )
 
-           return redirect(request.url)
+
 
 
 

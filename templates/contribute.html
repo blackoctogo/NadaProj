@@ -7,20 +7,27 @@
 <div class=" container">
     <div class=" row">
         <div class="col">
-            <h1>Upload Image</h1>
+            <h1>Upload une vidéo</h1>
             <hr>
             <form action="/contribuer" method="post" enctype="multipart/form-data">
 
                 <div class="form-group">
-                    <label>Select Image</label>
+                    <label>Déposez votre vidéo</label>
                     <div class="custom-file">
                         <input oninput="filesize(this);" type="file" class="custom-file-input" name="video" id="video">
-                        <label class="custom-file-label" for="video"> Select Image</label>
+                        <label class="custom-file-label" for="video"> Selectionnez une Video</label>
                     </div>
+                    <label id="ipt">{{text}}</label>
                 </div>
 
-                <button type="submit" class=" btn btn-primary" style="height:50px;width:120px"> Upload Image</button>
+                <button type="submit" class=" btn btn-primary" style="height:50px;width:120px"> Upload la Video</button>
 
+
+                <script>
+                    function exe(){
+                    document.getElementById("ipt").innerHTML=JSON.stringify('{{text}}');
+                    }
+                </script>
             </form>
         </div>
     </div>
