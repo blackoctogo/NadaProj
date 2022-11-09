@@ -45,6 +45,16 @@ class Word(db.Model):
     def __repr__(self):
         return f"Word(string = {self.string}, added = {self.added})"
 
+class Contributions(db.Model):
+    string = db.Column(db.String(50), primary_key=True)
+    nombre = db.Column(db.Integer)
+
+    def __repr__(self):
+        return f"Word(string = {self.string}, added = {self.added})"
+#with app.app_context() :
+#    db.create_all()
+    #db.session.add(Contributions(string="compteur", nombre=0))
+    #db.session.commit()
 
 '''
 connect_str = "DefaultEndpointsProtocol=https;AccountName=tutoriel;AccountKey=x3uGxcHOPRBGr6ubganIRxZwH/OtDyVFE6SoekthOBRd4yq57I+o07lWMrSkXxbck6rM+5vIXB+++AStjwIrAQ==;EndpointSuffix=core.windows.net"
@@ -66,7 +76,9 @@ except Exception as e:
 
 @app.route("/")
 def home():
-    return render_template('home.html')
+    result = Contributions.query.filter_by(string="compteur").first()
+    compteur=result.nombre
+    return render_template('home.html', compteur=compteur)
 
 
 @app.route("/mentions-legales")
@@ -168,11 +180,13 @@ def contribuer():
                     success=True
                     print("Video Saved")
                     result=Word.query.filter(Word.string.ilike(str(request.form["videoword"]))).first()
+                    result2 = Contributions.query.filter_by(string="compteur").first()
                     if not result :
                         print("No such word")
                     else :
                         print("Word found" +str(request.form["videoword"]+"--the other is "+ result.string))
                         result.added=True
+                        result2.nombre+=1
                         db.session.commit()
                     return render_template('contribute.html',
                                            text="Votre vidéo a bien été enregistrée, merci pour votre contribution !")
