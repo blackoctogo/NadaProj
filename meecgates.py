@@ -6,18 +6,12 @@ from flask_sqlalchemy import SQLAlchemy
 
 import os
 
-'''
-import sqlite3
+
+import psycopg2
 import pandas as pd
-filename="worddb"
-con=sqlite3.connect(filename+".db")
-wb=pd.ExcelFile(filename+'.xlsx')
-for sheet in wb.sheet_names:
-        df=pd.read_excel(filename+'.xlsx',sheet_name=sheet)
-        df.to_sql(sheet,con, index=False,if_exists="replace")
-con.commit()
-con.close()
-'''
+
+
+
 
 storage_account_key = "x3uGxcHOPRBGr6ubganIRxZwH/OtDyVFE6SoekthOBRd4yq57I+o07lWMrSkXxbck6rM+5vIXB+++AStjwIrAQ=="
 storage_account_name = "tutoriel"
@@ -34,8 +28,8 @@ def uploadToBlobStorage(file,filename):
 app = Flask(__name__)
 
 #app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///worddb.db'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://ecmnjnejxzpejf:ef65539509a755bdef8f127e2c9001ae6fd0b68d365e15be647469c89a2803dd@ec2-63-32-248-14.eu-west-1.compute.amazonaws.com:5432/d7tffuois6u87f'
-
+#app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://ecmnjnejxzpejf:ef65539509a755bdef8f127e2c9001ae6fd0b68d365e15be647469c89a2803dd@ec2-63-32-248-14.eu-west-1.compute.amazonaws.com:5432/d7tffuois6u87f'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///https://drive.google.com/file/d/1zFFz1-eX9Jk_JHrsjM5tYyx5huM8npGx/view?usp=share_link'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
@@ -53,11 +47,26 @@ class Contributions(db.Model):
 
     def __repr__(self):
         return f"Word(string = {self.string}, added = {self.added})"
-#with app.app_context() :
-#    db.create_all()
-    #db.session.add(Contributions(string="compteur", nombre=0))
-    #db.session.commit()
+'''
+with app.app_context() :
+    result2 = Contributions.query.filter_by(string="compteur").first()
+    df = pd.read_excel("worddb.xlsx")
+    column1 = df.columns[0]
+    column2 = df.columns[1]
+    print(column1)
+    print("-" * len(column1))
+    for index, row in df.iterrows():
+        db.session.add(Word(string=str(row[column1]), added=False))
+        db.session.commit()
+        #print(row[column1])
 
+print(result2.nombre)
+'''
+'''with app.app_context() :
+    db.create_all()
+    db.session.add(Contributions(string="compteur", nombre=0))
+    db.session.commit()
+'''
 '''
 connect_str = "DefaultEndpointsProtocol=https;AccountName=tutoriel;AccountKey=x3uGxcHOPRBGr6ubganIRxZwH/OtDyVFE6SoekthOBRd4yq57I+o07lWMrSkXxbck6rM+5vIXB+++AStjwIrAQ==;EndpointSuffix=core.windows.net"
 #os.getenv('AZURE_STORAGE_CONNECTION_STRING') # retrieve the connection string from the environment variable
@@ -142,63 +151,68 @@ def upload_image():
 
 @app.route("/contribuer", methods= ["GET","POST"])
 def contribuer():
+    with app.app_context():
+        if request.method=="POST" :
 
-    if request.method=="POST" :
+            if request.files:
 
-        if request.files:
+               video = request.files["video"]
+               print(request.form["videoword"])
+               if video.filename== "" :
+                   print("Video must have a filename")
+                   return render_template('contribute.html', text = "Votre vidéo doit comporter un nom.")
 
-           video = request.files["video"]
-           print(request.form["videoword"])
-           if video.filename== "" :
-               print("Video must have a filename")
-               return render_template('contribute.html', text = "Votre vidéo doit comporter un nom.")
+               if request.form["videoword"] == "":
+                   print("Video must have a filename")
+                   return render_template('contribute.html', text="Veuillez entrer le mot ou l'expression correspondant à la vidéo.")
 
-           if request.form["videoword"] == "":
-               print("Video must have a filename")
-               return render_template('contribute.html', text="Veuillez entrer le mot ou l'expression correspondant à la vidéo.")
+               if not allowed_video(video.filename) :
+                   print("That video ext is not allowed")
+                   return render_template('contribute.html', text ="Ce type de fichier n'est pas accepté.")
 
-           if not allowed_video(video.filename) :
-               print("That video ext is not allowed")
-               return render_template('contribute.html', text ="Ce type de fichier n'est pas accepté.")
+               else :
+                    success= False
+                    count=0
+                    blob_service_client=BlobServiceClient.from_connection_string(connection_string)
+                    container_client = blob_service_client.get_container_client(container=container_name)
+                    blob_items = container_client.list_blob_names()  # list all the blobs in the container
+                    filename = request.form["videoword"].lower() + "_" + str(count) + "." + video.filename.rsplit(".", 1)[1]
+                    while success ==False :
+                        if filename not in blob_items :
+                            success= True
+                        else :
+                            count+=1
+                            filename = request.form["videoword"].lower() + "_" + str(count) + "." + video.filename.rsplit(".", 1)[1]
 
-           else :
-                success= False
-                count=0
-                blob_service_client=BlobServiceClient.from_connection_string(connection_string)
-                container_client = blob_service_client.get_container_client(container=container_name)
-                blob_items = container_client.list_blob_names()  # list all the blobs in the container
-                filename = request.form["videoword"].lower() + "_" + str(count) + "." + video.filename.rsplit(".", 1)[1]
-                while success ==False :
-                    if filename not in blob_items :
-                        success= True
-                    else :
-                        count+=1
-                        filename = request.form["videoword"].lower() + "_" + str(count) + "." + video.filename.rsplit(".", 1)[1]
-
-                try:
-                    print("essai pour count: "+str(count))
-                    uploadToBlobStorage(video,filename)
-                    print("Valeur passe à true")
-                    success=True
-                    print("Video Saved")
-                    result=Word.query.filter(Word.string.ilike(str(request.form["videoword"]))).first()
-                    result2 = Contributions.query.filter_by(string="compteur").first()
-                    if not result :
-                        print("No such word")
-                    else :
-                        print("Word found" +str(request.form["videoword"]+"--the other is "+ result.string))
-                        result.added=True
-                        result2.nombre+=1
+                    try:
+                        print("essai pour count: "+str(count))
+                        uploadToBlobStorage(video,filename)
+                        print("Valeur passe à true")
+                        success=True
+                        print("Video Saved")
+                        result=Word.query.filter(Word.string.ilike(str(request.form["videoword"]))).first()
+                        result2 = Contributions.query.filter_by(string="compteur").first()
+                        result2.nombre += 1
                         db.session.commit()
-                    return render_template('contribute.html',
-                                           text="Votre vidéo a bien été enregistrée, merci pour votre contribution !")
-                except Exception as e:
-                    print(e)
-                    print("Ignoring duplicate filenames")  # ignore duplicate filename
+                        if not result :
+                            print("No such word")
+                        else :
+                            print("Word found" +str(request.form["videoword"]+"--the other is "+ result.string))
+                            result.added=True
+                            #check = Contributions.query.filter_by(string="compteur").first()
+                            #print("Nouvelle valeur :"+str(check.nombre))
+                            db.session.commit()
+                            #check = Contributions.query.filter_by(string="compteur").first()
+                            #print("Nouvelle valeur 2 :" + str(check.nombre))
+                        return render_template('contribute.html',
+                                               text="Votre vidéo a bien été enregistrée, merci pour votre contribution !")
+                    except Exception as e:
+                        print(e)
+                        print("Ignoring duplicate filenames")  # ignore duplicate filename
 
 
 
-    return render_template('contribute.html')
+        return render_template('contribute.html')
 
 @app.route('/mots-manquants')
 def mots_manquants():
