@@ -16388,15 +16388,9 @@ zénith,0
 Zeppelin,0
 zéro,0
 zéro degré,0
-zêta,0
-zézayer,0
-zh,0
-zhang,0
-ziff,0
 Zimbabwe,0
 zinc,0
 zine,0
-Zip *: français,0
 zircone,0
 zodiaque,0
 Zoé,0

@@ -6,7 +6,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 import os
 
-
+#from sqlalchemy import create_engine
 import psycopg2
 import pandas as pd
 
@@ -35,8 +35,10 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
 class Word(db.Model):
-    string = db.Column(db.String(50), primary_key=True)
-    added = db.Column(db.Boolean, default= False)
+    id = db.Column(db.Integer,primary_key=True)
+    string = db.Column(db.String(50))
+    context = db.Column(db.String(50), default=None)
+    num_add = db.Column(db.Integer, default= 0)
 
     def __repr__(self):
         return f"Word(string = {self.string}, added = {self.added})"
@@ -46,25 +48,34 @@ class Contributions(db.Model):
     nombre = db.Column(db.Integer)
 
     def __repr__(self):
-        return f"Word(string = {self.string}, added = {self.added})"
+        return f"Contribution(string = {self.string}, added = {self.added})"
 '''
+
 with app.app_context() :
-    result2 = Contributions.query.filter_by(string="compteur").first()
-    df = pd.read_excel("worddb.xlsx")
+    
+    #result2 = Contributions.query.filter_by(string="compteur").first()
+    df = pd.read_excel("DicLsf.xlsx")
     column1 = df.columns[0]
     column2 = df.columns[1]
-    print(column1)
-    print("-" * len(column1))
+    column3 = df.columns[2]
+    print(column2)
+    #print("-" * len(column1))
     for index, row in df.iterrows():
-        db.session.add(Word(string=str(row[column1]), added=False))
-        db.session.commit()
-        #print(row[column1])
+        db.session.add(Word(id=row[column1],string=str(row[column2]), context=str(row[column3])))
 
-print(result2.nombre)
+        #print(row[column1])
+    
+    engine = create_engine('postgresql+psycopg2://ecmnjnejxzpejf:ef65539509a755bdef8f127e2c9001ae6fd0b68d365e15be647469c89a2803dd@ec2-63-32-248-14.eu-west-1.compute.amazonaws.com:5432/d7tffuois6u87f')
+    with pd.ExcelFile('DicLsf.xlsx') as xls :
+        df= pd.read_excel(xls)
+        df.to_sql(name='Word',con= engine,if_exists='append',index=False)
+    #db.session.commit()
+#print(result2.nombre)
 '''
-'''with app.app_context() :
+'''
+with app.app_context() :
     db.create_all()
-    db.session.add(Contributions(string="compteur", nombre=0))
+    #db.session.add(Contributions(string="compteur", nombre=0))
     db.session.commit()
 '''
 '''
@@ -198,7 +209,7 @@ def contribuer():
                             print("No such word")
                         else :
                             print("Word found" +str(request.form["videoword"]+"--the other is "+ result.string))
-                            result.added=True
+                            result.num_add+=1
                             #check = Contributions.query.filter_by(string="compteur").first()
                             #print("Nouvelle valeur :"+str(check.nombre))
                             db.session.commit()
@@ -212,12 +223,17 @@ def contribuer():
 
 
 
-        return render_template('contribute.html')
+        return render_template('contribute.html',mot=request.args['text'])
 
 @app.route('/mots-manquants')
 def mots_manquants():
-    result = Word.query.filter_by(added=False)
+    result = Word.query.order_by(Word.id).filter(Word.num_add <3 )
+    #result = Word.query.order_by(Word.id).all()
     words = result
+    for word in words:
+        print(word.string)
+    #print(words[0].string+ str(words[0].num_add))
+    #print(words.string + str(words.num_add))
     return render_template('mots_manquants.html', words=words)
 
 
