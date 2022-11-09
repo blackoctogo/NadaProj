@@ -18,7 +18,11 @@
                     <div class="custom-file">
                         <label> <br> <br> </label>
                         <label style="margin-right: 50px">Entrez le mot ou l'expression correspondant :</label>
-                        <input style="margin-right: 100px" type="text" name="videoword" id="videoword" value="{{mot}}"/>
+                        {% if mot %}
+                            <input style="margin-right: 100px" type="text" name="videoword" id="videoword" value="{{mot}}"/>
+                        {% else %}
+                            <input style="margin-right: 100px" type="text" name="videoword" id="videoword" value=""/>
+                        {% endif %}
                         <label><br><br></label>
                         <label style="margin-right: 20px">Choisir votre vidéo :</label>
                         <input oninput="filesize(this);" type="file" class="custom-file-input" name="video" id="video" style="margin-right: -130px;border-radius: revert">

@@ -221,9 +221,9 @@ def contribuer():
                         print(e)
                         print("Ignoring duplicate filenames")  # ignore duplicate filename
 
+        return render_template('contribute.html',mot=request.args.get("text"))
 
 
-        return render_template('contribute.html',mot=request.args['text'])
 
 @app.route('/mots-manquants')
 def mots_manquants():
