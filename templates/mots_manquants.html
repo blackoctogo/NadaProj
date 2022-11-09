@@ -1,19 +1,19 @@
 <!-- templates/contribute.html -->
 
-{% extends "base_user.html" %}
+{% extends "base.html" %}
 
 {% block content %}
-<h1>Your History </h1>
+<h1>Mots manquants <br><br><br><br> </h1>
 
-    {% if historys %}
-        {% for history in historys %}
+    {% if words %}
+        {% for word in words %}
         <article>
-            <h2> id : {{ history.id }} -Gate ID : {{ history.gate_id }} - date : {{ history.date }}
-            </h2>
+            <a href=" {{ url_for('contribuer') }}?text={{ word.string }}" style="font-size: 15px"> {{ word.string }}
+            </a>
         </article>
         <hr>
         {% endfor %}
     {% else %}
-        <p>No history found.</p>
+        <p>Aucun mot manquant.</p>
     {% endif %}
 {% endblock %}

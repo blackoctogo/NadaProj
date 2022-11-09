@@ -134,42 +134,61 @@ def contribuer():
         if request.files:
 
            video = request.files["video"]
-
+           print(request.form["videoword"])
            if video.filename== "" :
                print("Video must have a filename")
                return render_template('contribute.html', text = "Votre vidéo doit comporter un nom.")
+
+           if request.form["videoword"] == "":
+               print("Video must have a filename")
+               return render_template('contribute.html', text="Veuillez entrer le mot ou l'expression correspondant à la vidéo.")
 
            if not allowed_video(video.filename) :
                print("That video ext is not allowed")
                return render_template('contribute.html', text ="Ce type de fichier n'est pas accepté.")
 
            else :
-                filename= secure_filename(video.filename)
-                #image.save(os.path.join(app.config["IMAGE_UPLOAD"], filename))
+                success= False
+                count=0
+                blob_service_client=BlobServiceClient.from_connection_string(connection_string)
+                container_client = blob_service_client.get_container_client(container=container_name)
+                blob_items = container_client.list_blob_names()  # list all the blobs in the container
+                filename = request.form["videoword"].lower() + "_" + str(count) + "." + video.filename.rsplit(".", 1)[1]
+                while success ==False :
+                    if filename not in blob_items :
+                        success= True
+                    else :
+                        count+=1
+                        filename = request.form["videoword"].lower() + "_" + str(count) + "." + video.filename.rsplit(".", 1)[1]
+
                 try:
+                    print("essai pour count: "+str(count))
                     uploadToBlobStorage(video,filename)
+                    print("Valeur passe à true")
+                    success=True
                     print("Video Saved")
+                    result=Word.query.filter(Word.string.ilike(str(request.form["videoword"]))).first()
+                    if not result :
+                        print("No such word")
+                    else :
+                        print("Word found" +str(request.form["videoword"]+"--the other is "+ result.string))
+                        result.added=True
+                        db.session.commit()
                     return render_template('contribute.html',
                                            text="Votre vidéo a bien été enregistrée, merci pour votre contribution !")
                 except Exception as e:
                     print(e)
                     print("Ignoring duplicate filenames")  # ignore duplicate filename
-                return render_template('contribute.html',
-                                       text="Ce nom de vidéo est déjà existant, merci de le modifier.")
-
-
-
-
-
-           #image.save(os.path.join(app.config["IMAGE_UPLOAD" ], image.filename) )
-
-
 
 
 
     return render_template('contribute.html')
 
-
+@app.route('/mots-manquants')
+def mots_manquants():
+    result = Word.query.filter_by(added=False)
+    words = result
+    return render_template('mots_manquants.html', words=words)
 
 
 if __name__ == '__main__':

@@ -16,8 +16,12 @@
                 <div class="form-group">
 
                     <div class="custom-file">
-                        <label> <br> <br> <br></label>
-                        <input oninput="filesize(this);" type="file" class="custom-file-input" name="video" id="video" style="border-radius: revert">
+                        <label> <br> <br> </label>
+                        <label style="margin-right: 50px">Entrez le mot ou l'expression correspondant :</label>
+                        <input style="margin-right: 100px" type="text" name="videoword" id="videoword" value=""/>
+                        <label><br><br></label>
+                        <label style="margin-right: 20px">Choisir votre vidéo :</label>
+                        <input oninput="filesize(this);" type="file" class="custom-file-input" name="video" id="video" style="margin-right: -130px;border-radius: revert">
                     </div>
                     <label style="font-weight: bold" id="ipt">{{text}}<br><br></label>
                 </div>
