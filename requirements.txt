@@ -6,3 +6,4 @@ flask_cors
 flask_sqlalchemy
 gunicorn
 azure.storage.blob
+psycopg2
