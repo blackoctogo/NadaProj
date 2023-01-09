@@ -62,7 +62,7 @@ with app.app_context() :
     #print("-" * len(column1))
     for index, row in df.iterrows():
         db.session.add(Word(id=row[column1],string=str(row[column2]), context=str(row[column3])))
-
+    db.session.commit()
         #print(row[column1])
 '''    
     engine = create_engine('postgresql+psycopg2://ecmnjnejxzpejf:ef65539509a755bdef8f127e2c9001ae6fd0b68d365e15be647469c89a2803dd@ec2-63-32-248-14.eu-west-1.compute.amazonaws.com:5432/d7tffuois6u87f')
