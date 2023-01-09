@@ -8,3 +8,4 @@ gunicorn
 azure.storage.blob
 psycopg2
 pandas
+openpyxl
