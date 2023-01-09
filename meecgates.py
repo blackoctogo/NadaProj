@@ -72,12 +72,12 @@ with app.app_context() :
     #db.session.commit()
 #print(result2.nombre)
 '''
-
+'''
 with app.app_context() :
     db.create_all()
     db.session.add(Contributions(string="compteur", nombre=0))
     db.session.commit()
-
+'''
 '''
 connect_str = "DefaultEndpointsProtocol=https;AccountName=tutoriel;AccountKey=x3uGxcHOPRBGr6ubganIRxZwH/OtDyVFE6SoekthOBRd4yq57I+o07lWMrSkXxbck6rM+5vIXB+++AStjwIrAQ==;EndpointSuffix=core.windows.net"
 #os.getenv('AZURE_STORAGE_CONNECTION_STRING') # retrieve the connection string from the environment variable
