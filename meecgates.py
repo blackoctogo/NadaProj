@@ -28,7 +28,7 @@ def uploadToBlobStorage(file,filename):
 app = Flask(__name__)
 
 #app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///worddb.db'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://tixcpfalirnwct:c7d73bfaee0ebb9e2e259c54472d25958dd32eef03b0c784c691dd054b42e836@ec2-34-252-35-249.eu-west-1.compute.amazonaws.com:5432/d2rof5ari57iej'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://qvkdalhpcydxpw:ed6203b19bf7e3c3453fa342a2f8bea15f77567f06c0c8debaf096c6c4f556a0@ec2-52-208-164-5.eu-west-1.compute.amazonaws.com:5432/dfjuej09sli6me'
 #app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///https://drive.google.com/file/d/1zFFz1-eX9Jk_JHrsjM5tYyx5huM8npGx/view?usp=share_link'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
