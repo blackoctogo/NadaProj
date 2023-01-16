@@ -9,6 +9,6 @@ azure.storage.blob
 psycopg2
 pandas
 openpyxl
-opencv-python
+opencv-python-headless
 mediapipe
-cv2
+
