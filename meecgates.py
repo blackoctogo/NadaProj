@@ -3,7 +3,8 @@ from flask import *
 from werkzeug.utils import secure_filename
 from azure.storage.blob import BlobServiceClient,_container_client
 from flask_sqlalchemy import SQLAlchemy
-
+import cv2
+import mediapipe as mp
 import os
 
 #from sqlalchemy import create_engine
@@ -93,6 +94,11 @@ except Exception as e:
     container_client = blob_service_client.create_container(container_name) # create a container in the storage account if it does not exist
 '''
 
+
+
+mp_drawing = mp.solutions.drawing_utils
+mp_drawing_styles = mp.solutions.drawing_styles
+mp_hands = mp.solutions.hands
 
 
 
@@ -195,9 +201,85 @@ def contribuer():
                             count+=1
                             filename = request.form["videoword"].lower() + "_" + str(count) + "." + video.filename.rsplit(".", 1)[1]
 
+                    # ouvrir la vidéo
+                    video = cv2.VideoCapture(video)
+
+                    # obtenir le nombre de frames de la vidéo
+                    frame_count = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
+
+                    # définir les intervalles de découpe (en pourcentage)
+                    intervals = [0, 25, 50, 75, 100]
+
+                    images= [video,video,video,video]
+
+                    # itérer à travers les intervalles
+                    for i, interval in enumerate(intervals[:-1]):
+                        # définir le début et la fin de l'intervalle (en frames)
+                        start_frame = int(frame_count * interval / 100)
+                        end_frame = int(frame_count * intervals[i + 1] / 100)
+
+                        # positionner la vidéo sur le début de l'intervalle
+                        video.set(cv2.CAP_PROP_POS_FRAMES, start_frame)
+
+                        # lire la frame
+                        _, frame = video.read()
+                        images[i]= frame
+                        # sauvegarder l'image
+                        #cv2.imwrite("frame{}.jpg".format(i), frame)
+
+                    # relâcher la vidéo
+                    video.release()
+
+                    # initialiser un dictionnaire pour stocker les données
+                    data = {
+                        'image_name': [],
+                        'hand': [],
+                        'finger_x': [],
+                        'finger_y': []
+                    }
+
+                    # For static images:
+                    IMAGE_FILES = images
+                    with mp_hands.Hands(
+                            static_image_mode=True,
+                            max_num_hands=2,
+                            min_detection_confidence=0.5) as hands:
+                        image_num= 0
+                        for idx, file in enumerate(IMAGE_FILES):
+                            # Read an image, flip it around y-axis for correct handedness output (see
+                            # above).
+                            image = cv2.flip(cv2.imread(file), 1)
+                            # Convert the BGR image to RGB before processing.
+                            results = hands.process(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+
+                            # Print handedness and draw hand landmarks on the image.
+                            print('Handedness:', results.multi_handedness)
+                            if not results.multi_hand_landmarks:
+                                continue
+                            image_height, image_width, _ = image.shape
+                            annotated_image = image.copy()
+                            for hand_landmarks in results.multi_hand_landmarks:
+                                print('hand_landmarks:', hand_landmarks)
+                                print(
+                                    f'Index finger tip coordinates: (',
+                                    f'{hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_TIP].x * image_width}, '
+                                    f'{hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_TIP].y * image_height})'
+                                )
+                                for hand_landmark in hand_landmarks.landmark :
+                                    data['image_name'].append(image_num)
+                                    data['hand'].append(hand_landmarks.label)
+                                    data['finger_x'].append(hand_landmark.x)
+                                    data['finger_y'].append(hand_landmark.y)
+                        image_num=image_num+1
+
+                            # convertir le dictionnaire en un dataframe
+                        df = pd.DataFrame(data)
+
+                        # enregistrer le dataframe dans un fichier Excel
+                        df.to_excel("finger_coordinates.xlsx", index=False)
                     try:
                         print("essai pour count: "+str(count))
-                        uploadToBlobStorage(video,filename)
+                        uploadToBlobStorage("finger_coordinates.xlsx",filename)
                         print("Valeur passe à true")
                         success=True
                         print("Video Saved")

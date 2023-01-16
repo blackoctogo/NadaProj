@@ -9,3 +9,5 @@ azure.storage.blob
 psycopg2
 pandas
 openpyxl
+opencv-python
+mediapipe
