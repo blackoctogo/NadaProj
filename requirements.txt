@@ -11,3 +11,4 @@ pandas
 openpyxl
 opencv-python
 mediapipe
+cv2
