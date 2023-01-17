@@ -6,6 +6,7 @@ from flask_sqlalchemy import SQLAlchemy
 import cv2
 import mediapipe as mp
 import os
+from google.protobuf.json_format import MessageToDict
 
 #from sqlalchemy import create_engine
 import psycopg2
@@ -204,7 +205,7 @@ def contribuer():
                     # ouvrir la vidéo
 
                     with open(filename, "wb") as f:
-                        f.write(video)
+                        f.write(video.read())
 
                     video_ = cv2.VideoCapture(filename)
 
@@ -214,7 +215,7 @@ def contribuer():
                     # définir les intervalles de découpe (en pourcentage)
                     intervals = [0, 25, 50, 75, 100]
 
-                    images= [video,video,video,video]
+                    images= ["frame0.jpg","frame1.jpg","frame2.jpg","frame3.jpg"]
 
                     # itérer à travers les intervalles
                     for i, interval in enumerate(intervals[:-1]):
@@ -227,9 +228,9 @@ def contribuer():
 
                         # lire la frame
                         _, frame = video_.read()
-                        images[i]= frame
+
                         # sauvegarder l'image
-                        #cv2.imwrite("frame{}.jpg".format(i), frame)
+                        cv2.imwrite("frame{}.jpg".format(i), frame)
 
                     # relâcher la vidéo
                     video_.release()
@@ -257,24 +258,42 @@ def contribuer():
                             results = hands.process(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
 
                             # Print handedness and draw hand landmarks on the image.
-                            print('Handedness:', results.multi_handedness)
-                            if not results.multi_hand_landmarks:
-                                continue
-                            image_height, image_width, _ = image.shape
-                            annotated_image = image.copy()
-                            for hand_landmarks in results.multi_hand_landmarks:
-                                print('hand_landmarks:', hand_landmarks)
-                                print(
-                                    f'Index finger tip coordinates: (',
-                                    f'{hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_TIP].x * image_width}, '
-                                    f'{hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_TIP].y * image_height})'
-                                )
-                                for hand_landmark in hand_landmarks.landmark :
-                                    data['image_name'].append(image_num)
-                                    data['hand'].append(hand_landmarks.label)
-                                    data['finger_x'].append(hand_landmark.x)
-                                    data['finger_y'].append(hand_landmark.y)
-                        image_num=image_num+1
+                            print(image_num)
+                            if results.multi_hand_landmarks :
+                                classification_dict = results.multi_handedness
+                                handedness_dict = MessageToDict(results.multi_handedness[0])
+                                print('Handedness:', handedness_dict['classification'][0]['label'])
+                                #print(dir(results.multi_handedness[0].classification))
+
+
+                                if not results.multi_hand_landmarks:
+                                    continue
+
+                                image_height, image_width, _ = image.shape
+                                annotated_image = image.copy()
+                                for hand_landmarks, handedness in zip(results.multi_hand_landmarks, results.multi_handedness):
+                                    print('hand_landmarks:',hand_landmarks)
+                                    print(
+                                        f'Index finger tip coordinates: (',
+                                        f'{hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_TIP].x * image_width}, '
+                                        f'{hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_TIP].y * image_height})'
+                                    )
+                                    if MessageToDict(handedness)['classification'][0]['label'] == "Right":
+                                        for hand_landmark in hand_landmarks.landmark:
+                                            data['image_name'].append(image_num)
+                                            data['hand'].append("Right")
+                                            data['finger_x'].append(hand_landmark.x)
+                                            data['finger_y'].append(hand_landmark.y)
+                                    elif MessageToDict(handedness)['classification'][0]['label'] == "Left":
+                                        for hand_landmark in hand_landmarks.landmark:
+                                            data['image_name'].append(image_num)
+                                            data['hand'].append("Left")
+                                            data['finger_x'].append(hand_landmark.x)
+                                            data['finger_y'].append(hand_landmark.y)
+                            image_num = image_num + 1
+
+
+
 
                             # convertir le dictionnaire en un dataframe
                         df = pd.DataFrame(data)
@@ -283,7 +302,10 @@ def contribuer():
                         df.to_excel("finger_coordinates.xlsx", index=False)
                     try:
                         print("essai pour count: "+str(count))
-                        uploadToBlobStorage("finger_coordinates.xlsx",filename)
+                        name, ext = os.path.splitext(filename)
+                        with open(file="finger_coordinates.xlsx", mode="rb") as data:
+                            uploadToBlobStorage(data,name+".xlsx")
+
                         print("Valeur passe à true")
                         success=True
                         print("Video Saved")
