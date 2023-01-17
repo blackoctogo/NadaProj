@@ -202,10 +202,14 @@ def contribuer():
                             filename = request.form["videoword"].lower() + "_" + str(count) + "." + video.filename.rsplit(".", 1)[1]
 
                     # ouvrir la vidéo
-                    video = cv2.VideoCapture(video)
+
+                    with open(filename, "wb") as f:
+                        f.write(video)
+
+                    video_ = cv2.VideoCapture(filename)
 
                     # obtenir le nombre de frames de la vidéo
-                    frame_count = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
+                    frame_count = int(video_.get(cv2.CAP_PROP_FRAME_COUNT))
 
                     # définir les intervalles de découpe (en pourcentage)
                     intervals = [0, 25, 50, 75, 100]
@@ -219,16 +223,16 @@ def contribuer():
                         end_frame = int(frame_count * intervals[i + 1] / 100)
 
                         # positionner la vidéo sur le début de l'intervalle
-                        video.set(cv2.CAP_PROP_POS_FRAMES, start_frame)
+                        video_.set(cv2.CAP_PROP_POS_FRAMES, start_frame)
 
                         # lire la frame
-                        _, frame = video.read()
+                        _, frame = video_.read()
                         images[i]= frame
                         # sauvegarder l'image
                         #cv2.imwrite("frame{}.jpg".format(i), frame)
 
                     # relâcher la vidéo
-                    video.release()
+                    video_.release()
 
                     # initialiser un dictionnaire pour stocker les données
                     data = {
