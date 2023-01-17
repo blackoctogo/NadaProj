@@ -11,4 +11,5 @@ pandas
 openpyxl
 opencv-python
 mediapipe
+google.protobuf.json_format
 
